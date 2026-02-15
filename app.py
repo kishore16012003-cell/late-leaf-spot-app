@@ -106,19 +106,23 @@ elif page == "Disease Prediction":
 
         Y = max(0, min(Y, 100))
 
-        if Y < 25:
+        if Y < 40:
             risk = "Low Risk"
             advice = "No fungicide spray required."
-        elif Y < 50:
+
+        elif Y < 60:
             risk = "Moderate Risk"
             advice = "Monitor crop condition regularly."
-        elif Y < 75:
+
+        elif Y < 80:
             risk = "High Risk"
             advice = "Preventive fungicide spray recommended."
+
         else:
             risk = "Severe Risk"
-            advice = "Immediate fungicide spray required!"
+             advice = "Immediate fungicide spray required!"
 
+            
         return Y, risk, advice
 
     if st.button("Predict Disease"):
@@ -180,4 +184,5 @@ elif page == "About Developer":
 # FOOTER
 # ---------------------------------------------------
 st.markdown('<p class="footer">© 2026 Kishor Kumar | All Rights Reserved</p>', unsafe_allow_html=True)
+
 
