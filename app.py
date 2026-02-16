@@ -6,9 +6,6 @@ Year: 2026
 
 This application predicts Late Leaf Spot disease severity in groundnut
 using weather-based regression models and provides advisory guidance.
-
-Copyright (c) 2026 Kishor Kumar
-All Rights Reserved.
 """
 
 import streamlit as st
@@ -107,9 +104,7 @@ elif page == "Disease Prediction":
         # Limit prediction between 0 and 100
         Y = max(0, min(Y, 100))
 
-        # -----------------------------
-        # UPDATED RISK CLASSIFICATION
-        # -----------------------------
+        # Risk Classification
         if Y < 40:
             risk = "Low Risk"
             advice = "No fungicide spray required."
@@ -183,7 +178,3 @@ elif page == "About Developer":
     Late Leaf Spot disease in groundnut crops.
     """)
 
-# ---------------------------------------------------
-# FOOTER
-# ---------------------------------------------------
-st.markdown('<p class="footer">© 2026 Kishor Kumar | All Rights Reserved</p>', unsafe_allow_html=True)
