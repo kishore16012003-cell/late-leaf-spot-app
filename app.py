@@ -3,9 +3,6 @@ Late Leaf Spot Disease Prediction System
 ------------------------------------------
 Developed by: Kishor Kumar
 Year: 2026
-
-Weather-based decision support system for predicting
-Late Leaf Spot disease severity in groundnut.
 """
 
 import streamlit as st
@@ -23,37 +20,17 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------------------------------------------
-# CUSTOM CSS
-# ---------------------------------------------------
+# Remove extra top spacing (important for hero section)
 st.markdown("""
 <style>
-.main-title {
-    font-size:42px;
-    font-weight:bold;
-    text-align:center;
-    color:#1B5E20;
-}
-.section-title {
-    font-size:28px;
-    color:#2E7D32;
-    margin-top:20px;
-}
-.stButton>button {
-    background-color:#2E8B57;
-    color:white;
-    font-weight:bold;
-    border-radius:8px;
-}
-.stButton>button:hover {
-    background-color:#1B5E20;
-    color:white;
+.block-container {
+    padding-top: 0rem;
 }
 </style>
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# SIDEBAR
+# SIDEBAR NAVIGATION
 # ---------------------------------------------------
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
@@ -62,7 +39,7 @@ page = st.sidebar.radio(
 )
 
 # ===================================================
-# HOME PAGE (Professional Hero Banner)
+# HOME PAGE (PROFESSIONAL HERO)
 # ===================================================
 if page == "Home":
 
@@ -73,8 +50,9 @@ if page == "Home":
         background-image: url('https://raw.githubusercontent.com/kishore16012003-cell/late-leaf-spot-app/main/banner.jpg');
         background-size: cover;
         background-position: center;
-        height: 500px;
-        border-radius: 15px;
+        height: 520px;
+        border-radius: 20px;
+        margin-bottom: 30px;
     }
 
     .overlay {
@@ -83,8 +61,8 @@ if page == "Home":
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.55);
-        border-radius: 15px;
+        background: rgba(0,0,0,0.6);
+        border-radius: 20px;
     }
 
     .hero-text {
@@ -94,15 +72,26 @@ if page == "Home":
         transform: translate(-50%, -50%);
         color: white;
         text-align: center;
+        width: 90%;
     }
 
     .hero-text h1 {
-        font-size: 48px;
+        font-size: 32px;
         font-weight: bold;
     }
 
     .hero-text p {
-        font-size: 22px;
+        font-size: 18px;
+        margin-top: 15px;
+    }
+
+    @media (min-width: 768px) {
+        .hero-text h1 {
+            font-size: 48px;
+        }
+        .hero-text p {
+            font-size: 22px;
+        }
     }
     </style>
 
@@ -115,12 +104,10 @@ if page == "Home":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("<br>", unsafe_allow_html=True)
-
     st.write("""
     This decision support system predicts Late Leaf Spot disease severity 
-    using weather-based regression models. It assists farmers in taking 
-    timely preventive management decisions.
+    using scientifically developed regression models based on weather parameters.
+    It assists farmers in taking timely preventive management decisions.
     """)
 
 # ===================================================
@@ -128,7 +115,7 @@ if page == "Home":
 # ===================================================
 elif page == "Disease Prediction":
 
-    st.markdown('<p class="section-title">Weather Parameters Input</p>', unsafe_allow_html=True)
+    st.subheader("Weather Parameters Input")
 
     col1, col2 = st.columns(2)
 
@@ -194,6 +181,7 @@ elif page == "Disease Prediction":
                 ],
             }
         ))
+
         st.plotly_chart(fig, use_container_width=True)
 
         # Weather Bar Chart
@@ -204,6 +192,7 @@ elif page == "Disease Prediction":
 
         fig2 = px.bar(weather_data, x="Parameter", y="Value",
                       title="Weather Parameters Used for Prediction")
+
         st.plotly_chart(fig2, use_container_width=True)
 
         # Animated Severity Trend
@@ -228,11 +217,11 @@ elif page == "Disease Prediction":
         st.plotly_chart(fig_trend, use_container_width=True)
 
 # ===================================================
-# DISEASE INFORMATION PAGE
+# DISEASE INFORMATION
 # ===================================================
 elif page == "Disease Information":
 
-    st.markdown('<p class="section-title">About Late Leaf Spot Disease</p>', unsafe_allow_html=True)
+    st.subheader("About Late Leaf Spot Disease")
 
     st.write("""
     Late Leaf Spot is a fungal disease affecting groundnut crops.
@@ -240,14 +229,14 @@ elif page == "Disease Information":
     leading to premature defoliation and yield loss.
     """)
 
-    st.subheader("Symptoms:")
+    st.markdown("### Symptoms")
     st.write("""
     - Dark circular spots  
     - Yellow halo around lesions  
     - Severe leaf drop  
     """)
 
-    st.subheader("Management:")
+    st.markdown("### Management Practices")
     st.write("""
     - Timely fungicide application  
     - Crop rotation  
@@ -256,11 +245,11 @@ elif page == "Disease Information":
     """)
 
 # ===================================================
-# ABOUT PAGE
+# ABOUT DEVELOPER
 # ===================================================
 elif page == "About Developer":
 
-    st.markdown('<p class="section-title">About the Developer</p>', unsafe_allow_html=True)
+    st.subheader("About the Developer")
 
     st.write("""
     Developed by: **Kishor Kumar**  
