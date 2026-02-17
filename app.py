@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 import pandas as pd
 import numpy as np
+import urllib.parse
 
 # ---------------------------------------------------
 # PAGE CONFIGURATION
@@ -20,7 +21,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Remove extra top spacing (important for hero section)
+# Remove extra top spacing
 st.markdown("""
 <style>
 .block-container {
@@ -30,7 +31,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# SIDEBAR NAVIGATION
+# SIDEBAR
 # ---------------------------------------------------
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
@@ -39,7 +40,7 @@ page = st.sidebar.radio(
 )
 
 # ===================================================
-# HOME PAGE (PROFESSIONAL HERO)
+# HOME PAGE
 # ===================================================
 if page == "Home":
 
@@ -105,9 +106,9 @@ if page == "Home":
     """, unsafe_allow_html=True)
 
     st.write("""
-    This decision support system predicts Late Leaf Spot disease severity 
-    using scientifically developed regression models based on weather parameters.
-    It assists farmers in taking timely preventive management decisions.
+    This system forecasts Late Leaf Spot disease severity using
+    regression models based on weather parameters.
+    It helps farmers take timely preventive management decisions.
     """)
 
 # ===================================================
@@ -128,16 +129,21 @@ elif page == "Disease Prediction":
         x4 = st.number_input("Evening Relative Humidity (%)", min_value=0.0, value=70.0)
         x5 = st.number_input("Rainfall (mm)", min_value=0.0, value=5.0)
 
+    phone = st.text_input(
+        "Farmer WhatsApp Number (with country code)",
+        placeholder="e.g. 919876543210"
+    )
+
     model = st.selectbox(
-        "Select Prediction Model",
-        ["Current Week", "1 Week Before", "2 Weeks Before"]
+        "Select Forecast Period",
+        ["Current Week", "Next 7 Days", "Next 14 Days"]
     )
 
     def predict_disease(x1, x2, x3, x4, x5, model):
 
         if model == "Current Week":
             Y = -88.94 + 3.39*x1 + 1.16*x2 + 0.368*x3 - 0.0503*x4 - 1.98*x5
-        elif model == "1 Week Before":
+        elif model == "Next 7 Days":
             Y = -69.84 + 2.86*x1 + 1.20*x2 + 0.294*x3 - 0.0192*x4 + 0.213*x5
         else:
             Y = -76.11 + 3.08*x1 + 1.12*x2 + 0.0873*x3 - 0.0892*x4 + 1.89*x5
@@ -145,13 +151,17 @@ elif page == "Disease Prediction":
         Y = max(0, min(Y, 100))
 
         if Y < 40:
-            risk, advice, color = "Low Risk", "No fungicide spray required.", "green"
+            risk, advice, color = "Low Risk", \
+                "Disease risk is low during the selected forecast period.", "green"
         elif Y < 60:
-            risk, advice, color = "Moderate Risk", "Monitor crop regularly.", "gold"
+            risk, advice, color = "Moderate Risk", \
+                "Monitor crop condition regularly over the coming days.", "gold"
         elif Y < 80:
-            risk, advice, color = "High Risk", "Preventive fungicide spray recommended.", "orange"
+            risk, advice, color = "High Risk", \
+                "Preventive fungicide spray recommended within the forecast period.", "orange"
         else:
-            risk, advice, color = "Severe Risk", "Immediate fungicide spray required!", "red"
+            risk, advice, color = "Severe Risk", \
+                "Immediate fungicide spray required to prevent yield loss!", "red"
 
         return Y, risk, advice, color
 
@@ -181,7 +191,6 @@ elif page == "Disease Prediction":
                 ],
             }
         ))
-
         st.plotly_chart(fig, use_container_width=True)
 
         # Weather Bar Chart
@@ -210,11 +219,54 @@ elif page == "Disease Prediction":
             y="Severity",
             markers=True,
             range_y=[0, 100],
-            title="Animated Weekly Severity Trend",
+            title="Projected Severity Trend",
             animation_frame="Week"
         )
 
         st.plotly_chart(fig_trend, use_container_width=True)
+
+        # WhatsApp Alert
+        if phone and Y >= 60:
+
+            message = f"""
+⚠ Late Leaf Spot Forecast Alert!
+
+Forecast Period: {model}
+Predicted Severity: {Y:.2f}%
+Risk Level: {risk}
+
+Advisory:
+{advice}
+
+- Late Leaf Spot DSS
+"""
+
+            encoded_message = urllib.parse.quote(message)
+            whatsapp_url = f"https://wa.me/{phone}?text={encoded_message}"
+
+            st.success("High Risk Detected! Send WhatsApp Alert Below 👇")
+
+            st.markdown(
+                f"""
+                <a href="{whatsapp_url}" target="_blank">
+                    <button style="
+                        background-color:#25D366;
+                        color:white;
+                        padding:10px 20px;
+                        border:none;
+                        border-radius:8px;
+                        font-size:16px;
+                        font-weight:bold;
+                        cursor:pointer;">
+                        📲 Send WhatsApp Alert
+                    </button>
+                </a>
+                """,
+                unsafe_allow_html=True
+            )
+
+        elif phone and Y < 60:
+            st.info("Risk level is low/moderate. No WhatsApp alert required.")
 
 # ===================================================
 # DISEASE INFORMATION
@@ -225,7 +277,7 @@ elif page == "Disease Information":
 
     st.write("""
     Late Leaf Spot is a fungal disease affecting groundnut crops.
-    It appears as dark brown to black circular lesions on leaves,
+    It appears as dark brown to black circular lesions,
     leading to premature defoliation and yield loss.
     """)
 
@@ -240,8 +292,8 @@ elif page == "Disease Information":
     st.write("""
     - Timely fungicide application  
     - Crop rotation  
-    - Use of resistant varieties  
-    - Proper sanitation  
+    - Use resistant varieties  
+    - Field sanitation  
     """)
 
 # ===================================================
@@ -255,10 +307,4 @@ elif page == "About Developer":
     Developed by: **Kishor Kumar**  
     Specialization: Data Science & Agricultural Informatics  
     Year: 2026  
-    """)
-
-    st.write("""
-    This system was developed as part of research work
-    to assist farmers in early disease prediction
-    and management of Late Leaf Spot in groundnut.
     """)
