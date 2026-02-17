@@ -4,8 +4,8 @@ Late Leaf Spot Disease Prediction System
 Developed by: Kishor Kumar
 Year: 2026
 
-This application predicts Late Leaf Spot disease severity in groundnut
-using weather-based regression models and provides advisory guidance.
+Weather-based decision support system for predicting
+Late Leaf Spot disease severity in groundnut.
 """
 
 import streamlit as st
@@ -24,15 +24,15 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------
-# CUSTOM CSS DESIGN
+# CUSTOM CSS
 # ---------------------------------------------------
 st.markdown("""
 <style>
 .main-title {
     font-size:42px;
-    color:#1B5E20;
     font-weight:bold;
     text-align:center;
+    color:#1B5E20;
 }
 .section-title {
     font-size:28px;
@@ -53,7 +53,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------
-# SIDEBAR NAVIGATION
+# SIDEBAR
 # ---------------------------------------------------
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
@@ -62,24 +62,69 @@ page = st.sidebar.radio(
 )
 
 # ===================================================
-# PAGE 1 – HOME
+# HOME PAGE (Professional Hero Banner)
 # ===================================================
 if page == "Home":
 
-    st.markdown('<p class="main-title">🌿 Late Leaf Spot Disease Prediction</p>', unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+    .hero {
+        position: relative;
+        background-image: url('https://raw.githubusercontent.com/kishore16012003-cell/late-leaf-spot-app/main/banner.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 500px;
+        border-radius: 15px;
+    }
+
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.55);
+        border-radius: 15px;
+    }
+
+    .hero-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-align: center;
+    }
+
+    .hero-text h1 {
+        font-size: 48px;
+        font-weight: bold;
+    }
+
+    .hero-text p {
+        font-size: 22px;
+    }
+    </style>
+
+    <div class="hero">
+        <div class="overlay"></div>
+        <div class="hero-text">
+            <h1>🌿 Late Leaf Spot Disease Prediction</h1>
+            <p>Weather-Based Decision Support System for Groundnut</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
 
     st.write("""
-    This decision support system helps predict Late Leaf Spot disease 
-    severity in groundnut crops using weather parameters such as 
-    temperature, humidity, and rainfall.
+    This decision support system predicts Late Leaf Spot disease severity 
+    using weather-based regression models. It assists farmers in taking 
+    timely preventive management decisions.
     """)
 
-    st.image("https://upload.wikimedia.org/wikipedia/commons/5/58/Arachis_hypogaea_peanuts.jpg", use_container_width=True)
-
-    st.info("Use the sidebar to navigate to Disease Prediction.")
-
 # ===================================================
-# PAGE 2 – DISEASE PREDICTION
+# DISEASE PREDICTION PAGE
 # ===================================================
 elif page == "Disease Prediction":
 
@@ -113,21 +158,13 @@ elif page == "Disease Prediction":
         Y = max(0, min(Y, 100))
 
         if Y < 40:
-            risk = "Low Risk"
-            advice = "No fungicide spray required."
-            color = "green"
+            risk, advice, color = "Low Risk", "No fungicide spray required.", "green"
         elif Y < 60:
-            risk = "Moderate Risk"
-            advice = "Monitor crop condition regularly."
-            color = "gold"
+            risk, advice, color = "Moderate Risk", "Monitor crop regularly.", "gold"
         elif Y < 80:
-            risk = "High Risk"
-            advice = "Preventive fungicide spray recommended."
-            color = "orange"
+            risk, advice, color = "High Risk", "Preventive fungicide spray recommended.", "orange"
         else:
-            risk = "Severe Risk"
-            advice = "Immediate fungicide spray required!"
-            color = "red"
+            risk, advice, color = "Severe Risk", "Immediate fungicide spray required!", "red"
 
         return Y, risk, advice, color
 
@@ -135,7 +172,6 @@ elif page == "Disease Prediction":
 
         Y, risk, advice, color = predict_disease(x1, x2, x3, x4, x5, model)
 
-        # Color-coded Result
         st.markdown(
             f"<h2 style='color:{color};'>Predicted Severity: {Y:.2f}% ({risk})</h2>",
             unsafe_allow_html=True
@@ -143,9 +179,7 @@ elif page == "Disease Prediction":
 
         st.warning(f"Advisory: {advice}")
 
-        # ---------------------------
         # Gauge Chart
-        # ---------------------------
         fig = go.Figure(go.Indicator(
             mode="gauge+number",
             value=Y,
@@ -160,12 +194,9 @@ elif page == "Disease Prediction":
                 ],
             }
         ))
-
         st.plotly_chart(fig, use_container_width=True)
 
-        # ---------------------------
-        # Weather Parameter Bar Chart
-        # ---------------------------
+        # Weather Bar Chart
         weather_data = pd.DataFrame({
             "Parameter": ["Max Temp", "Min Temp", "Morning RH", "Evening RH", "Rainfall"],
             "Value": [x1, x2, x3, x4, x5]
@@ -173,12 +204,9 @@ elif page == "Disease Prediction":
 
         fig2 = px.bar(weather_data, x="Parameter", y="Value",
                       title="Weather Parameters Used for Prediction")
-
         st.plotly_chart(fig2, use_container_width=True)
 
-        # ---------------------------
         # Animated Severity Trend
-        # ---------------------------
         weeks = list(range(1, 11))
         trend_values = np.linspace(max(5, Y-30), Y, 10)
 
@@ -200,7 +228,7 @@ elif page == "Disease Prediction":
         st.plotly_chart(fig_trend, use_container_width=True)
 
 # ===================================================
-# PAGE 3 – DISEASE INFORMATION
+# DISEASE INFORMATION PAGE
 # ===================================================
 elif page == "Disease Information":
 
@@ -208,18 +236,18 @@ elif page == "Disease Information":
 
     st.write("""
     Late Leaf Spot is a fungal disease affecting groundnut crops.
-    It appears as dark brown to black lesions on leaves,
+    It appears as dark brown to black circular lesions on leaves,
     leading to premature defoliation and yield loss.
     """)
 
     st.subheader("Symptoms:")
     st.write("""
-    - Dark circular spots on leaves  
+    - Dark circular spots  
     - Yellow halo around lesions  
     - Severe leaf drop  
     """)
 
-    st.subheader("Management Practices:")
+    st.subheader("Management:")
     st.write("""
     - Timely fungicide application  
     - Crop rotation  
@@ -228,7 +256,7 @@ elif page == "Disease Information":
     """)
 
 # ===================================================
-# PAGE 4 – ABOUT DEVELOPER
+# ABOUT PAGE
 # ===================================================
 elif page == "About Developer":
 
@@ -241,8 +269,7 @@ elif page == "About Developer":
     """)
 
     st.write("""
-    This system was developed as part of research work 
-    to assist farmers in early detection and management 
-    of Late Leaf Spot disease in groundnut crops.
+    This system was developed as part of research work
+    to assist farmers in early disease prediction
+    and management of Late Leaf Spot in groundnut.
     """)
-
