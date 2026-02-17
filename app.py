@@ -9,6 +9,10 @@ using weather-based regression models and provides advisory guidance.
 """
 
 import streamlit as st
+import plotly.graph_objects as go
+import plotly.express as px
+import pandas as pd
+import numpy as np
 
 # ---------------------------------------------------
 # PAGE CONFIGURATION
@@ -25,20 +29,25 @@ st.set_page_config(
 st.markdown("""
 <style>
 .main-title {
-    font-size:40px;
-    color:#2E8B57;
+    font-size:42px;
+    color:#1B5E20;
     font-weight:bold;
+    text-align:center;
 }
 .section-title {
     font-size:28px;
-    color:#006400;
+    color:#2E7D32;
     margin-top:20px;
 }
-.footer {
-    text-align:center;
-    font-size:14px;
-    color:gray;
-    margin-top:50px;
+.stButton>button {
+    background-color:#2E8B57;
+    color:white;
+    font-weight:bold;
+    border-radius:8px;
+}
+.stButton>button:hover {
+    background-color:#1B5E20;
+    color:white;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -60,14 +69,14 @@ if page == "Home":
     st.markdown('<p class="main-title">🌿 Late Leaf Spot Disease Prediction</p>', unsafe_allow_html=True)
 
     st.write("""
-    This web-based decision support system helps farmers predict
-    Late Leaf Spot disease severity in groundnut crops using
-    weather parameters such as temperature, humidity, and rainfall.
+    This decision support system helps predict Late Leaf Spot disease 
+    severity in groundnut crops using weather parameters such as 
+    temperature, humidity, and rainfall.
     """)
 
     st.image("https://upload.wikimedia.org/wikipedia/commons/5/58/Arachis_hypogaea_peanuts.jpg", use_container_width=True)
 
-    st.success("Navigate to 'Disease Prediction' page to start prediction.")
+    st.info("Use the sidebar to navigate to Disease Prediction.")
 
 # ===================================================
 # PAGE 2 – DISEASE PREDICTION
@@ -101,35 +110,94 @@ elif page == "Disease Prediction":
         else:
             Y = -76.11 + 3.08*x1 + 1.12*x2 + 0.0873*x3 - 0.0892*x4 + 1.89*x5
 
-        # Limit prediction between 0 and 100
         Y = max(0, min(Y, 100))
 
-        # Risk Classification
         if Y < 40:
             risk = "Low Risk"
             advice = "No fungicide spray required."
-
+            color = "green"
         elif Y < 60:
             risk = "Moderate Risk"
             advice = "Monitor crop condition regularly."
-
+            color = "gold"
         elif Y < 80:
             risk = "High Risk"
             advice = "Preventive fungicide spray recommended."
-
+            color = "orange"
         else:
             risk = "Severe Risk"
             advice = "Immediate fungicide spray required!"
+            color = "red"
 
-        return Y, risk, advice
+        return Y, risk, advice, color
 
     if st.button("Predict Disease"):
 
-        Y, risk, advice = predict_disease(x1, x2, x3, x4, x5, model)
+        Y, risk, advice, color = predict_disease(x1, x2, x3, x4, x5, model)
 
-        st.success(f"Disease Severity: {Y:.2f}%")
-        st.info(f"Risk Level: {risk}")
+        # Color-coded Result
+        st.markdown(
+            f"<h2 style='color:{color};'>Predicted Severity: {Y:.2f}% ({risk})</h2>",
+            unsafe_allow_html=True
+        )
+
         st.warning(f"Advisory: {advice}")
+
+        # ---------------------------
+        # Gauge Chart
+        # ---------------------------
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=Y,
+            title={'text': "Disease Severity (%)"},
+            gauge={
+                'axis': {'range': [0, 100]},
+                'steps': [
+                    {'range': [0, 40], 'color': "lightgreen"},
+                    {'range': [40, 60], 'color': "yellow"},
+                    {'range': [60, 80], 'color': "orange"},
+                    {'range': [80, 100], 'color': "red"}
+                ],
+            }
+        ))
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # ---------------------------
+        # Weather Parameter Bar Chart
+        # ---------------------------
+        weather_data = pd.DataFrame({
+            "Parameter": ["Max Temp", "Min Temp", "Morning RH", "Evening RH", "Rainfall"],
+            "Value": [x1, x2, x3, x4, x5]
+        })
+
+        fig2 = px.bar(weather_data, x="Parameter", y="Value",
+                      title="Weather Parameters Used for Prediction")
+
+        st.plotly_chart(fig2, use_container_width=True)
+
+        # ---------------------------
+        # Animated Severity Trend
+        # ---------------------------
+        weeks = list(range(1, 11))
+        trend_values = np.linspace(max(5, Y-30), Y, 10)
+
+        trend_data = pd.DataFrame({
+            "Week": weeks,
+            "Severity": trend_values
+        })
+
+        fig_trend = px.line(
+            trend_data,
+            x="Week",
+            y="Severity",
+            markers=True,
+            range_y=[0, 100],
+            title="Animated Weekly Severity Trend",
+            animation_frame="Week"
+        )
+
+        st.plotly_chart(fig_trend, use_container_width=True)
 
 # ===================================================
 # PAGE 3 – DISEASE INFORMATION
@@ -148,7 +216,7 @@ elif page == "Disease Information":
     st.write("""
     - Dark circular spots on leaves  
     - Yellow halo around lesions  
-    - Leaf drop in severe cases  
+    - Severe leaf drop  
     """)
 
     st.subheader("Management Practices:")
@@ -156,7 +224,7 @@ elif page == "Disease Information":
     - Timely fungicide application  
     - Crop rotation  
     - Use of resistant varieties  
-    - Proper field sanitation  
+    - Proper sanitation  
     """)
 
 # ===================================================
@@ -173,8 +241,8 @@ elif page == "About Developer":
     """)
 
     st.write("""
-    This application was developed as part of research work
-    to assist farmers in early detection and management of
-    Late Leaf Spot disease in groundnut crops.
+    This system was developed as part of research work 
+    to assist farmers in early detection and management 
+    of Late Leaf Spot disease in groundnut crops.
     """)
 
